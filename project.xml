@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="MirkoMir" package="ru.mirkomir" version="1.0.0" company="MirkoMir" />
+	<app main="mm.App" path="Export" file="MirkoMir" />
+	
+	<source path="Source" />
+	
+	<haxelib name="openfl" />
+	
+	<assets path="Assets" rename="assets" />
+	<library path="assets/mirkomir.swf" preload="true" generate="true" />
+	<dependency name="assets/sfs2x-api-1.7.17.js" if="html5" />
+</project>
