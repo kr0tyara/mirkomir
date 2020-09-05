@@ -18,15 +18,15 @@ class Ava extends openfl.display.MovieClip {
 		super ();
 
 		/*
-		if (!SWFLite.instances.exists ("vKnlfD2buAHmQZ5zUojz")) {
+		if (!SWFLite.instances.exists ("dVxygrvB1tL7vIVXAgLn")) {
 
-			SWFLite.instances.set ("vKnlfD2buAHmQZ5zUojz", SWFLite.unserialize (Assets.getText ("vKnlfD2buAHmQZ5zUojz")));
+			SWFLite.instances.set ("dVxygrvB1tL7vIVXAgLn", SWFLite.unserialize (Assets.getText ("dVxygrvB1tL7vIVXAgLn")));
 
 		}
 		*/
 
-		var swfLite = SWFLite.instances.get ("vKnlfD2buAHmQZ5zUojz");
-		var symbol = swfLite.symbols.get (1272);
+		var swfLite = SWFLite.instances.get ("dVxygrvB1tL7vIVXAgLn");
+		var symbol = swfLite.symbols.get (1273);
 
 		__fromSymbol (swfLite, cast symbol);
 

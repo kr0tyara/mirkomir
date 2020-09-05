@@ -2,9 +2,12 @@ package mm.screens; #if !flash
 
 
 import openfl._internal.formats.swf.SWFLite;
-import openfl.display.MovieClip;
 import openfl.utils.Assets;
+import openfl.display.*;
+import openfl.events.*;
+import openfl.ui.*;
 
+import com.smartfoxserver.v2.requests.*;
 
 class GameScreen extends openfl.display.MovieClip {
 	@:keep public var chatHistoryPanel (default, null):ChatHistoryPanel;
@@ -23,10 +26,12 @@ class GameScreen extends openfl.display.MovieClip {
 
 		super ();
 
-		var swfLite = SWFLite.instances.get ("vKnlfD2buAHmQZ5zUojz");
-		var symbol = swfLite.symbols.get (1155);
+		var swfLite = SWFLite.instances.get ("dVxygrvB1tL7vIVXAgLn");
+		var symbol = swfLite.symbols.get (1156);
 
 		__fromSymbol (swfLite, cast symbol);
+
+        Main.M.addEventListener(KeyboardEvent.KEY_DOWN, KeyDown);
 
         furniturePanel.visible = false;
         chatHistoryPanel.visible = false;
@@ -47,21 +52,31 @@ class GameScreen extends openfl.display.MovieClip {
         chatPanel.btnFriendsNotification.visible = false;
 	}
 
-    public function SetLocation(Val:String):Void
+    private function BtnChatClick (E:MouseEvent) : Void
     {
-        locationPanel.lblName.text = Val;
+        SendMessage();
     }
-    
-    public function SetBalanceRegular(Val:String):Void
+    private function KeyDown (E:KeyboardEvent)
     {
-        balancePanel.lblRegular.text = Val;
-    }
-    
-    public function SetBalanceDonate(Val:String):Void
-    {
-        balancePanel.lblDonate.text = Val;
+        if (E.keyCode == Keyboard.ENTER)
+            SendMessage();
     }
 
+    private function SendMessage(Msg:String = '')
+    {
+        if (Msg == '')
+        {
+            if (chatPanel.txtChat.text != '')
+            {
+				Main.SFS.send(new PublicMessageRequest(chatPanel.txtChat.text));
+                chatPanel.txtChat.text = '';
+            }
+        }
+        else
+        {
+            Main.SFS.send(new PublicMessageRequest(Msg));
+        }
+    }
 }
 
 

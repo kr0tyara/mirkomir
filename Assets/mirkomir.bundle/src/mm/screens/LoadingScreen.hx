@@ -20,16 +20,8 @@ class LoadingScreen extends openfl.display.MovieClip {
 
 		super ();
 
-		/*
-		if (!SWFLite.instances.exists ("vKnlfD2buAHmQZ5zUojz")) {
-
-			SWFLite.instances.set ("vKnlfD2buAHmQZ5zUojz", SWFLite.unserialize (Assets.getText ("vKnlfD2buAHmQZ5zUojz")));
-
-		}
-		*/
-
-		var swfLite = SWFLite.instances.get ("vKnlfD2buAHmQZ5zUojz");
-		var symbol = swfLite.symbols.get (815);
+		var swfLite = SWFLite.instances.get ("dVxygrvB1tL7vIVXAgLn");
+		var symbol = swfLite.symbols.get (816);
 
 		__fromSymbol (swfLite, cast symbol);
 

@@ -12,6 +12,9 @@ class App extends MovieClip
 	{
 		super();
 
+		stage.scaleMode = StageScaleMode.EXACT_FIT;
+		stage.quality = StageQuality.BEST;
+
 		Assets.loadLibrary ('assets/mirkomir.bundle').onComplete (function (F) {
 			trace ('SWF loaded!');
 

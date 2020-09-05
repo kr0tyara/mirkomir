@@ -9,5 +9,7 @@
 	
 	<assets path="Assets" rename="assets" />
 	<library path="assets/mirkomir.swf" preload="true" generate="true" />
-	<dependency name="assets/sfs2x-api-1.7.17.js" if="html5" />
+	<dependency name="assets/js/sfs2x-api-1.7.17.js" if="html5" />
+
+	<window width="1000" height="650" />
 </project>

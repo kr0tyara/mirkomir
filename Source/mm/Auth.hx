@@ -36,7 +36,7 @@ class Auth
             D.putUtfString('v1', '0.89');
 
             if (Main.Debug)
-                Main.SFS.send(new LoginRequest('1', '1', Main.Config['zone'], D));
+                Main.SFS.send(new LoginRequest('Гномик', 'KXJTNc2hdxMm7EXAMzEj', Main.Config['zone'], D));
             else
             {
                 var ULoader:URLLoader = new URLLoader();

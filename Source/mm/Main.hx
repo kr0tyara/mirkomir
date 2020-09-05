@@ -53,14 +53,17 @@ class Main extends MovieClip
 
 	public static var LS:LoadingScreen;
 
-	private var Rooms:Array<String> = ['forest', 'beach', 'square', 'club_square'];
-	private var R:Int = Math.round(Math.random() * 3);
+	private var Rooms:Array<String> = ['forest', 'square', 'club_square'];
+	private var R:Int = Math.round(Math.random() * 2);
 
 	public function new():Void
 	{
 		super();
         M = this;
         Init();
+
+        scaleX = 1;
+        scaleY = 1;
 	}
 
 	public function Init():Void
@@ -122,9 +125,9 @@ class Main extends MovieClip
         var R:Room = E.room;
    		trace('Joined room: ' + R.name);
 
-        GameScreen.SetBalanceRegular(Std.string(SFS.mySelf.getVariable("balance_regular").getIntValue()));
-        GameScreen.SetBalanceDonate(Std.string(SFS.mySelf.getVariable("balance_donate").getIntValue()));
-        GameScreen.SetLocation(R.getVariable('name_ru').getStringValue());
+        GameScreen.balancePanel.lblRegular.text = Std.string(SFS.mySelf.getVariable('balance_regular').getIntValue());
+        GameScreen.balancePanel.lblDonate.text  = Std.string(SFS.mySelf.getVariable('balance_donate').getIntValue());
+        GameScreen.locationPanel.lblName.text  = R.getVariable('name_ru').getStringValue();
 
    		Preloader(R.getVariable('name_ru').getStringValue() + ' загружается...', true);
    		var L:SWFLoader = new SWFLoader('/storage/' + R.getVariable('hash').getStringValue(), RoomLoad);
@@ -132,6 +135,12 @@ class Main extends MovieClip
 
    	public function RoomLoad(E:Event):Void
    	{
+        if(RoomScreen != null) {
+            Main.GameScreen.removeChild(RoomScreen);
+            RoomScreen.Destroy();
+            RoomScreen = null;
+        }
+        
    		RoomScreen = new Location(cast(E.target, LoaderInfo).content, SFS.lastJoinedRoom);
    		//addChild(cast(E.target, LoaderInfo).content);
    	}
