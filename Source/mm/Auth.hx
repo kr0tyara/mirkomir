@@ -36,7 +36,7 @@ class Auth
             D.putUtfString('v1', '0.89');
 
             if (Main.Debug)
-                Main.SFS.send(new LoginRequest('Гномик', 'KXJTNc2hdxMm7EXAMzEj', Main.Config['zone'], D));
+                Main.SFS.send(new LoginRequest('Гномик', 'm65sKiEprgjcxavddlH0', Main.Config['zone'], D));
             else
             {
                 var ULoader:URLLoader = new URLLoader();
@@ -68,9 +68,8 @@ class Auth
         {
             trace('Connection Failure: ' + E.errorMessage);
             
-            /*var loadingScreen = cast(Main.main.getChildByName("loadingScreen"), LoadingScreen);
-            loadingScreen.lblTarget.text = "Сервер недоступен";
-            loadingScreen.icon.gotoAndStop("offline");*/
+            if(Main.LS != null)
+                Main.M.Preloader('Сервер недоступен, повторите попытку позже', false, 'offline');
         }
     }
 
@@ -83,9 +82,8 @@ class Auth
     public static function LoginError(E:SFSEvent) : Void
     {
         trace('Login error');
-        //trace(event.params["errorMessage"], "Login Error");
-        /*var loadingScreen = cast(Main.main.getChildByName("loadingScreen"), LoadingScreen);
-        loadingScreen.icon.gotoAndStop("error");
-        loadingScreen.lblTarget.text = "Ошибка подключения";*/
+
+        if(Main.LS != null)
+            Main.M.Preloader('Ошибка подключения', false, 'error');
     }
 }

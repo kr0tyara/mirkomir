@@ -46,7 +46,6 @@ class Location extends MovieClip
         StaticObjects = cast(MC.getChildByName('staticObjects'), MovieClip);
         MoveArea = cast(MC.getChildByName('moveArea'), MovieClip);
 
-		//TODO
         Main.SFS.addEventListener(SFSEvent.USER_VARIABLES_UPDATE, UserVarsUpdate);
         Main.SFS.addEventListener(SFSEvent.USER_EXIT_ROOM, UserExitRoom);
         Main.SFS.addEventListener(SFSEvent.PUBLIC_MESSAGE, PublicMessage);
@@ -305,15 +304,6 @@ class Location extends MovieClip
         Main.SFS.send(new ExtensionRequest('uservars_set.direction', D));
     }
 
-	private function AvatarClick(E:MouseEvent):Void
-	{
-        var D:ISFSObject = new SFSObject();
-        D.putUtfString('name', cast(cast(E.target, MovieClip).parent, Avatar).lblName.text);
-        Main.SFS.send(new ExtensionRequest('profile', D));
-        
-        trace('Профиль', cast(cast(E.target, MovieClip).parent, Avatar).lblName.text);
-	}
-
 	private function GetAvatar(Id:Int):Avatar
 	{
 		return cast(DynamicObjects.getChildByName('avt_' + Std.string(Id)), Avatar);
@@ -330,32 +320,13 @@ class Location extends MovieClip
 	{
 		if (U.containsVariable('pos_x') && U.containsVariable('pos_y'))
         {
-            var A:Avatar = new Avatar(U, R.getVariable('scale').getIntValue());
+            var A:mm.entities.Avatar = new mm.entities.Avatar(U, R.getVariable('scale').getIntValue());
             
             A.x = U.getVariable('pos_x').getIntValue();
             A.y = U.getVariable('pos_y').getIntValue();
             
-            if (!U.isItMe)
-            {
-                A.mouseEnabled = false;
-                A.mouseChildren = true;
-                A.lblName.mouseEnabled = false;
-                A.bubble.mouseEnabled = false;
-                A.badge.mouseEnabled = false;
-                
-                A.avatar.mouseEnabled = true;
-                A.avatar.mouseChildren = false;
-                
-                A.avatar.addEventListener(MouseEvent.CLICK, AvatarClick);
-            }
-            else
-            {
-                A.mouseEnabled = false;
-                A.mouseChildren = false;
-                
-                //TODO
+            if (U.isItMe)
                 MC.addEventListener(MouseEvent.MOUSE_MOVE, LocationMouseMove);
-            }
             
             /*TODO
             var invis : Bool = false;

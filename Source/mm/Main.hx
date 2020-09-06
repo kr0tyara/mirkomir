@@ -68,7 +68,7 @@ class Main extends MovieClip
 
 	public function Init():Void
 	{
-        Preloader('Подключение к серверу...', false, Rooms[R]);
+        Preloader('Подключение к серверу...', false, 'loading', Rooms[R]);
 
         Config = new Map<String, Dynamic>();
 
@@ -129,7 +129,7 @@ class Main extends MovieClip
         GameScreen.balancePanel.lblDonate.text  = Std.string(SFS.mySelf.getVariable('balance_donate').getIntValue());
         GameScreen.locationPanel.lblName.text  = R.getVariable('name_ru').getStringValue();
 
-   		Preloader(R.getVariable('name_ru').getStringValue() + ' загружается...', true);
+   		Preloader(R.getVariable('name_ru').getStringValue() + ' загружается...', true, 'loading', R.name);
    		var L:SWFLoader = new SWFLoader('/storage/' + R.getVariable('hash').getStringValue(), RoomLoad);
    	}
 
@@ -148,9 +148,12 @@ class Main extends MovieClip
     public function ConnectionLost(E:SFSEvent):Void
     {
         trace('Connection lost: ' + E.reason);
+
+        if(LS != null) 
+            Main.M.Preloader('Ошибка подключения', false, 'error');
     }
 
-    public function Preloader(Txt:String, ProgressBar:Bool, Background:String = 'map'):Void
+    public function Preloader(Txt:String, ProgressBar:Bool, Icon:String = 'loading', Background:String = 'map'):Void
     {
     	if(LS == null)
     	{
@@ -160,6 +163,8 @@ class Main extends MovieClip
 	    
 	    LS.lblTarget.text = Txt;
 	    LS.lblProgress.text = (ProgressBar ? '0%' : '');
+
+        LS.icon.gotoAndStop(Icon);
     }
     public function RemovePreloader():Void
     {
