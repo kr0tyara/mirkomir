@@ -10,30 +10,36 @@ class SWFLoader {
 
 	private var L:Loader;
 	private var U:URLRequest;
+	private var HProg:Bool;
 	private var Completed:Event->Void;
 
-	public function new (URL:String, Comp:Event->Void):Void
+	public function new (URL:String, Comp:Event->Void, HandleProgress:Bool = true):Void
 	{
+		var Host:String = (Main.Debug ? Main.TestDomain : Main.MainDomain);
+		
 		L = new Loader();
-		U = new URLRequest((Main.Debug ? Main.TestDomain : Main.MainDomain) + URL + '.bundle');
+		U = new URLRequest('$Host/$URL.bundle');
 		Completed = Comp;
+		HProg = HandleProgress;
 
 		L.contentLoaderInfo.addEventListener(Event.COMPLETE, Complete);
-		L.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, Progress);
 		L.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, Error);
+		if (HProg)
+			L.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, Progress);
 
 		L.load(U);
 	}
 	public function Progress (E:ProgressEvent):Void
 	{
-		if(Main.LS != null)
-			Main.LS.lblProgress.text = Std.string(Math.floor(E.bytesLoaded / E.bytesTotal * 100)) + '%';
+		if (Main.LS.OnScene)
+			Main.LS.Progress(E.bytesLoaded, E.bytesTotal);
 	}
 	public function Complete (E:Event):Void
 	{
 		L.contentLoaderInfo.removeEventListener(Event.COMPLETE, Complete);
-		L.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, Progress);
 		L.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, Error);
+		if (HProg)
+			L.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, Progress);
 
 		Completed(E);
 	}

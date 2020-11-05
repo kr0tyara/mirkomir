@@ -6,6 +6,8 @@
 	<source path="Source" />
 	
 	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	<haxelib name="haxe-crypto" />
 	
 	<assets path="Assets" rename="assets" />
 	<library path="assets/mirkomir.swf" preload="true" generate="true" />
@@ -13,5 +15,6 @@
 
 	<icon path="assets/favicon.png" />
 
-	<window width="1000" height="650" />
+	<window orientation="landscape" width="1000" height="650" fps="60" resizeable="false" />
 </project>
+

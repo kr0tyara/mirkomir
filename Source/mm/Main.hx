@@ -28,7 +28,6 @@ import mm.parties.*;*/
 import com.greensock.*;
 import com.greensock.easing.*;
 
-
 class Main extends MovieClip
 {
 
@@ -40,35 +39,44 @@ class Main extends MovieClip
     public static var BuddyListInited:Bool;
         
     public static var RoomScreen:Dynamic;
-    public static var GameScreen:GameScreen;
+    public static var GMScreen:GameScreen;
     
     public static var SO:SharedObject = SharedObject.getLocal('mirkomir');
     public static var Version:String = '1.0.0';
 
 	//Debug
-	public static var Debug:Bool = true;
+	public static var Debug:Bool = false;
 	public static var DZAllowed:Bool = false;
-	public static var TestDomain:String = 'assets/';
-	public static var MainDomain:String = 'https://mirkomir.com/';
+	public static var TestDomain:String = 'assets';
+	public static var MainDomain:String = 'https://mirkomir.com';
 
 	public static var LS:LoadingScreen;
+	public static var DLS:DataLoadingScreen;
 
-	private var Rooms:Array<String> = ['forest', 'square', 'club_square'];
-	private var R:Int = Math.round(Math.random() * 2);
+	private static var Rooms:Array<String> = ['forest', 'square', 'club_square', 'beach'];
+	private var R:Int = Math.round(Math.random() * 3);
 
 	public function new():Void
 	{
 		super();
         M = this;
-        Init();
-
+		
+		#if debug
+		Debug = true;
+		#end
+		
+        //изменить для лучшего разрешения игры
         scaleX = 1;
         scaleY = 1;
+		
+        Init();
 	}
-
-	public function Init():Void
+	
+	private function Init():Void
 	{
-        Preloader('Подключение к серверу...', false, 'loading', Rooms[R]);
+        LS = new LoadingScreen();
+        LS.Background(Rooms[R]);
+        addChild(LS);
 
         Config = new Map<String, Dynamic>();
 
@@ -79,10 +87,8 @@ class Main extends MovieClip
         Config['zone'] = Debug ? 'mirkomirdebug' : 'mirkomir';
         Config['debug'] = Debug;
 
-        if(Debug) {
-        	var F:FPS = new FPS();
-        	addChild(F);
-        }
+        if(Debug) 
+            addChild(new FPS());
 
 		SFS = new SmartFox();
         //SFS.debug = Debug;
@@ -95,6 +101,8 @@ class Main extends MovieClip
         SFS.addEventListener(SFSEvent.LOGIN, Auth.Login);
         SFS.addEventListener(SFSEvent.CONNECTION, Auth.Connection);
         SFS.addEventListener(SFSEvent.LOGIN_ERROR, Auth.LoginError);
+		
+		SFS.addEventListener(SFSEvent.EXTENSION_RESPONSE, ExtensionResponse);
 
         //SFS.addEventListener(SFSEvent.ADMIN_MESSAGE, AdminMessage);
         //SFS.addEventListener(SFSEvent.MODERATOR_MESSAGE, AdminMessage);
@@ -112,31 +120,55 @@ class Main extends MovieClip
         SFS.addEventListener(SFSEvent.ROOM_JOIN, RoomJoin);
 	}
 
-    public function BuddyListInit(E:SFSBuddyEvent):Void 
+	private function ExtensionResponse(e:SFSEvent):Void
+	{
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
+        if (E.cmd == 'profile_info')
+        {
+			trace(E.params);
+        }
+	}
+	
+    private function BuddyListInit(e:SFSBuddyEvent):Void 
     {
         BuddyListInited = true;
         InitGame();
     }
 
-   	public function RoomJoin(E:SFSEvent):Void
+   	private function RoomJoin(e:SFSEvent):Void
    	{
-        addChildAt(GameScreen, 0);
+        addChildAt(GMScreen, 0);
 
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
         var R:Room = E.room;
    		trace('Joined room: ' + R.name);
 
-        GameScreen.balancePanel.lblRegular.text = Std.string(SFS.mySelf.getVariable('balance_regular').getIntValue());
-        GameScreen.balancePanel.lblDonate.text  = Std.string(SFS.mySelf.getVariable('balance_donate').getIntValue());
-        GameScreen.locationPanel.lblName.text  = R.getVariable('name_ru').getStringValue();
+        GMScreen.balancePanel.lblRegular.text = Std.string(SFS.mySelf.getVariable('balance_regular').getIntValue());
+        GMScreen.balancePanel.lblDonate.text  = Std.string(SFS.mySelf.getVariable('balance_donate').getIntValue());
+        GMScreen.locationPanel.lblName.text   = R.getVariable('name_ru').getStringValue();
+		
+        LS.Background(R.name);
+        LS.Type(LoadingScreen.LOCATION, R.getVariable('name_ru').getStringValue());
 
-   		Preloader(R.getVariable('name_ru').getStringValue() + ' загружается...', true, 'loading', R.name);
    		var L:SWFLoader = new SWFLoader('/storage/' + R.getVariable('hash').getStringValue(), RoomLoad);
    	}
 
-   	public function RoomLoad(E:Event):Void
+   	private function RoomLoad(E:Event):Void
    	{
         if(RoomScreen != null) {
-            Main.GameScreen.removeChild(RoomScreen);
+            GMScreen.removeChild(RoomScreen);
             RoomScreen.Destroy();
             RoomScreen = null;
         }
@@ -145,38 +177,28 @@ class Main extends MovieClip
    		//addChild(cast(E.target, LoaderInfo).content);
    	}
 
-    public function ConnectionLost(E:SFSEvent):Void
+    private function ConnectionLost(e:SFSEvent):Void
     {
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
         trace('Connection lost: ' + E.reason);
 
-        if(LS != null) 
-            Main.M.Preloader('Ошибка подключения', false, 'error');
+        if(LS.OnScene)
+            LS.Type(LoadingScreen.ERROR);
     }
 
-    public function Preloader(Txt:String, ProgressBar:Bool, Icon:String = 'loading', Background:String = 'map'):Void
+    private function InitGame():Void
     {
-    	if(LS == null)
-    	{
-    	    LS = new LoadingScreen(Background);
-	    	addChild(LS);
-    	}
-	    
-	    LS.lblTarget.text = Txt;
-	    LS.lblProgress.text = (ProgressBar ? '0%' : '');
+		trace(SFS.mySelf.privilegeId);
+    	trace('Init', SO.data);
+        DZAllowed = (SFS.mySelf.privilegeId >= 2 && SO.data.ModMZ);
 
-        LS.icon.gotoAndStop(Icon);
-    }
-    public function RemovePreloader():Void
-    {
-    	removeChild(LS);
-    	LS = null;
-    }
-
-    public function InitGame():Void
-    {
-    	trace('Init');
-
-        GameScreen = new GameScreen();
+        GMScreen = new GameScreen();
         
         /* TODO:
         if (Main.sfs.mySelf.getVariable("bonus").getBoolValue() == true)
@@ -192,4 +214,15 @@ class Main extends MovieClip
         //SFS.addEventListener(SFSEvent.EXTENSION_RESPONSE, sfsExtensionResponse);
         //SFS.send(new ExtensionRequest("friendlist.incoming_requests_count"));
     }
+	
+	public static function ShowDLS():Void
+	{
+		DLS = new DataLoadingScreen();
+		//addChild(DLS);
+	}
+	public static function HideDLS():Void
+	{
+		//removeChild(DLS);
+		DLS = null;
+	}
 }

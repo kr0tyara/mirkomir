@@ -54,10 +54,7 @@ class Location extends MovieClip
         MC.mouseChildren = true;
         DynamicObjects.mouseChildren = true;
 
-        /*
-		TODO
-        Main.gameScreen.setSound(_room.getVariable('hash').getStringValue());
-        */
+        Main.GMScreen.SetSound(R.getVariable('hash').getStringValue());
 
         var Child:DisplayObject;
         var MCHandler:MovieClip;
@@ -88,17 +85,24 @@ class Location extends MovieClip
                 MCHandler.buttonMode = true;
             }
         }
-
-        for (U in R.getUserList())
+		
+		var UL:Array<User>;
+		#if html5
+		UL = R.getUserList();
+		#else
+		UL = R.userList;
+		#end
+		
+        for (i in 0...UL.length)
         {
+			var U:User = UL[i];
             CreateAvatar(U);
-            trace(U.name);
         }
 
         Arrange();
         
-        Main.GameScreen.addChildAt(MC, 0);
-        Main.M.RemovePreloader();
+        Main.GMScreen.addChildAt(MC, 0);
+        Main.LS.Destroy();
 	}
 
     public function Destroy() : Void
@@ -109,19 +113,27 @@ class Location extends MovieClip
         
         MC.removeEventListener(MouseEvent.MOUSE_DOWN, LocationMouseDown);
         
-        for (U in R.getUserList())
+		var UL:Array<User>;
+		#if html5
+		UL = R.getUserList();
+		#else
+		UL = R.userList;
+		#end
+		
+        for (i in 0...UL.length)
         {
+			var U:User = UL[i];
             RemoveAvatar(GetAvatar(U.id));
         }
-        //TODO
-        //Main.GameScreen.destroySound();
-        Main.GameScreen.removeChild(MC);
+		
+        Main.GMScreen.DestroySound();
+        Main.GMScreen.removeChild(MC);
     }
 
 
 	private function LocationMouseDown(E:MouseEvent):Void
 	{
-        var A : Avatar = GetAvatar(Main.SFS.mySelf.id);
+        var A:Avatar = GetAvatar(Main.SFS.mySelf.id);
             
         var ClickPoint:Point = new Point(Math.round(E.stageX / Main.M.scaleX), Math.round(E.stageY / Main.M.scaleY));
         var StartPoint:Point = new Point(A.x, A.y);
@@ -159,21 +171,28 @@ class Location extends MovieClip
 
     private function SetPosition(x:Int, y:Int):Void
     {
-        var Vars:Array<SFSUserVariable> = [];
+        var Vars:Array<UserVariable> = [];
         Vars.push(new SFSUserVariable('pos_x', x));
         Vars.push(new SFSUserVariable('pos_y', y));
         Main.SFS.send(new SetUserVariablesRequest(Vars));
     }
 
-    private function PublicMessage(E:SFSEvent):Void
+    private function PublicMessage(e:SFSEvent):Void
     {
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
         trace(E.sender.name + ': ' + E.message);
 
         var A:Avatar = GetAvatar(E.sender.id);
             
         if (A == null)
             return;
-        if (E.message.indexOf('#BUBBLE#::') >= 0)
+        if (E.message.indexOf('#BUBBLE#::smile') >= 0)
             A.SetBubble(E.message.substr(10), true);
         else
             A.SetBubble(E.message);
@@ -181,8 +200,15 @@ class Location extends MovieClip
             //Main.gameScreen.chpAddMessage(E.sender.name, E.messages);
     }
 
-    private function UserVarsUpdate(E:SFSEvent):Void
+    private function UserVarsUpdate(e:SFSEvent):Void
     {
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
         var U:User = cast(E.user, User);
 
         if(GetAvatar(U.id) == null) {
@@ -205,17 +231,27 @@ class Location extends MovieClip
                 MoveAvatar(A, px, py, Dir, U.isItMe);
             }
 
+            if (Lambda.indexOf(E.changedVars, 'wear') != -1)
+				A.SetWear(U.getVariable('wear').getSFSObjectValue());
+			
             if (Lambda.indexOf(E.changedVars, 'balance_regular') != -1 && U.isItMe)
-                Main.GameScreen.balancePanel.lblRegular.text = Std.string(Main.SFS.mySelf.getVariable('balance_regular').getIntValue());
+                Main.GMScreen.balancePanel.lblRegular.text = Std.string(Main.SFS.mySelf.getVariable('balance_regular').getIntValue());
 
             if (Lambda.indexOf(E.changedVars, 'balance_donate') != -1 && U.isItMe)
-                Main.GameScreen.balancePanel.lblDonate.text  = Std.string(Main.SFS.mySelf.getVariable('balance_donate').getIntValue());
+                Main.GMScreen.balancePanel.lblDonate.text  = Std.string(Main.SFS.mySelf.getVariable('balance_donate').getIntValue());
 
         }
     }
 
-    private function UserExitRoom(E:SFSEvent):Void
+    private function UserExitRoom(e:SFSEvent):Void
     {
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
+		
         if (E.room == R)
         {            
             if (!E.user.isItMe)

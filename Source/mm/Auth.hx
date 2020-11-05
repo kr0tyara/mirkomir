@@ -25,8 +25,14 @@ class Auth
     {
     }
     
-    public static function Connection(E:SFSEvent):Void
+    public static function Connection(e:SFSEvent):Void
     {
+		var E:Dynamic;
+		#if html5
+			E = e;
+		#else
+			E = e.params;
+		#end
         if (E.success)
         {
             trace('Connection Success!');
@@ -34,9 +40,9 @@ class Auth
             var D:ISFSObject = new SFSObject();
             D.putUtfString('v', '0.9');
             D.putUtfString('v1', '0.89');
-
+			
             if (Main.Debug)
-                Main.SFS.send(new LoginRequest('Гномик', 'm65sKiEprgjcxavddlH0', Main.Config['zone'], D));
+                Main.SFS.send(new LoginRequest('Koca_ayi', 'awaOs606Wxicg1rvg02F', Main.Config['zone'], D));
             else
             {
                 var ULoader:URLLoader = new URLLoader();
@@ -67,14 +73,14 @@ class Auth
         else
         {
             trace('Connection Failure: ' + E.errorMessage);
-            
-            if(Main.LS != null)
-                Main.M.Preloader('Сервер недоступен, повторите попытку позже', false, 'offline');
+
+			if (Main.LS.OnScene)
+				Main.LS.Type(LoadingScreen.OFFLINE);
         }
     }
 
     public static function Login(E:SFSEvent):Void
-    {                
+    {
         trace('You are logged in as ' + Main.SFS.mySelf.name);            
         Main.SFS.send(new InitBuddyListRequest());
     }
@@ -84,6 +90,6 @@ class Auth
         trace('Login error');
 
         if(Main.LS != null)
-            Main.M.Preloader('Ошибка подключения', false, 'error');
+            Main.LS.Type(LoadingScreen.ERROR);
     }
 }
