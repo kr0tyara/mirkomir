@@ -42,7 +42,8 @@ class Auth
             D.putUtfString('v1', '0.89');
 			
             if (Main.Debug)
-                Main.SFS.send(new LoginRequest('Koca_ayi', 'awaOs606Wxicg1rvg02F', Main.Config['zone'], D));
+                Main.SFS.send(new LoginRequest('Мила', 'vdVdVeojxFvkToIBJ2O9', Main.Config['zone'], D));
+                //Main.SFS.send(new LoginRequest('Koca_ayi', '4b3opLtAlrtvKfpFqq1P', Main.Config['zone'], D));
             else
             {
                 var ULoader:URLLoader = new URLLoader();

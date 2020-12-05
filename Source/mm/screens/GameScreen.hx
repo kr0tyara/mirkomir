@@ -14,6 +14,7 @@ import mm.screens.*;
 import motion.*;
 
 import com.smartfoxserver.v2.requests.*;
+import com.smartfoxserver.v2.entities.data.*;
 
 class GameScreen extends mm.screens.GameScreenSwf {
 
@@ -47,6 +48,8 @@ class GameScreen extends mm.screens.GameScreenSwf {
 		
         chatPanel.btnSmiles.addEventListener(MouseEvent.CLICK, BtnSmilesClick);
         chatPanel.btnVolume.addEventListener(MouseEvent.CLICK, BtnVolumeClick);
+		chatPanel.btnProfile.addEventListener(MouseEvent.CLICK, BtnProfileClick);
+		chatPanel.btnHouse.addEventListener(MouseEvent.CLICK, BtnHouseClick);
 		
         smilesPanel.blendMode = BlendMode.LAYER;
         smilesPanel.visible = false;
@@ -145,8 +148,22 @@ class GameScreen extends mm.screens.GameScreenSwf {
 				alpha: 1
 			});
         }
-
 	}
+	
+	//Buttons
+	private function BtnProfileClick(E:MouseEvent):Void
+	{
+		var D:ISFSObject = new SFSObject();
+		D.putUtfString('name', Main.SFS.mySelf.name);
+		Main.SFS.send(new ExtensionRequest('profile', D));
+	}
+	private function BtnHouseClick(E:MouseEvent):Void
+	{
+		var D:ISFSObject = new SFSObject();
+		D.putUtfString('location', 'house_' + Main.SFS.mySelf.name);
+		Main.SFS.send(new ExtensionRequest('joinroom', D));
+	}
+	
     private function VolumePanelSliderMouseDown(E:MouseEvent):Void
     {
         var sg = volumePanel.sliderGroup;
@@ -226,25 +243,38 @@ class GameScreen extends mm.screens.GameScreenSwf {
         SendMessage();
     }
 
-    private function KeyDown (E:KeyboardEvent)
+    private function KeyDown (E:KeyboardEvent):Void
     {
         if (E.keyCode == Keyboard.ENTER)
             SendMessage();
     }
-    private function SendMessage(Msg:String = '')
+    private function SendMessage (Msg:String = ''):Void
     {
-        if (Msg == '')
+        if (Msg == '' && chatPanel.txtChat.text != '')
         {
-            if (chatPanel.txtChat.text != '')
-            {
-				Main.SFS.send(new PublicMessageRequest(chatPanel.txtChat.text));
-                chatPanel.txtChat.text = '';
-            }
+			Msg = chatPanel.txtChat.text;
+            chatPanel.txtChat.text = '';
+			
+			if (Msg.indexOf('/') != -1)
+			{
+				var Sl:Array<String> = Msg.split(' ');
+				var D:ISFSObject = new SFSObject();
+				
+				switch(Sl[0])
+				{
+					case '/p':
+						D.putUtfString('name', Sl[1]);
+						Main.SFS.send(new ExtensionRequest('profile', D));
+						return;
+					case '/h':
+						D.putUtfString('location', 'house_' + Sl[1]);
+						Main.SFS.send(new ExtensionRequest('joinroom', D));
+						return;
+				}
+			}
         }
-        else
-        {
-            Main.SFS.send(new PublicMessageRequest(Msg));
-        }
+		
+		Main.SFS.send(new PublicMessageRequest(Msg));
     }
 
     //Mod Panel

@@ -23,6 +23,8 @@ class Avatar extends mm.entities.AvatarSwf {
 	private var Color:String;
 	private var Badge:Int;
 	private var Scale:Float;
+	private var D:ISFSObject;
+	private var IsProfile:Bool;
 
 	private var R:Int = 0;
 	private var G:Int = 0;
@@ -32,17 +34,21 @@ class Avatar extends mm.entities.AvatarSwf {
 	private var bTact:Bool = false;
 
 	private var Wear:ISFSObject;
-	private var WearItems:Map<String, WearHolder>;
+	private var WearItems:Map<String, Wear>;
 
-	public function new (u:User, scale:Int = 100) {
+	public function new (u:User = null, scale:Int = 100, d:ISFSObject = null) {
 
 		super ();
 
 		U = u;
-		name = 'avt_' + Std.string(U.id);
-		WearItems = new Map<String, WearHolder>();
+		D = d;
+		
+		IsProfile = U == null;
+		
+		name = !IsProfile ? 'avt_' + Std.string(U.id) : 'profile';
+		WearItems = new Map<String, Wear>();
 
-		if (!U.isItMe)
+		if (!IsProfile && !U.isItMe)
 		{
 			mouseEnabled = false;
 			mouseChildren = true;
@@ -60,32 +66,45 @@ class Avatar extends mm.entities.AvatarSwf {
 			mouseEnabled = false;
 			mouseChildren = false;
 		}
-
-		Color = U.getVariable('color').getStringValue();
-		Wear = U.getVariable('wear').getSFSObjectValue();
-		Dir = U.getVariable('dir').getStringValue();
-		Badge = (U.containsVariable('badge') ? U.getVariable('badge').getIntValue() : 0);
+		
+		if (IsProfile)
+		{
+			Color = D.getUtfString('color');
+			Wear  = D.getSFSObject('wear');
+			Dir   = 'S';
+			Badge = 0;
+		}
+		else
+		{
+			Color = U.getVariable('color').getStringValue();
+			Wear  = U.getVariable('wear').getSFSObjectValue();
+			Dir   = U.getVariable('dir').getStringValue();
+			Badge = (U.containsVariable('badge') ? U.getVariable('badge').getIntValue() : 0);
+			
+			lblName.autoSize = TextFieldAutoSize.CENTER;
+			lblName.text = U.name;
+			
+			var a:Float = 1;
+			#if html5
+				a *= 8;
+			#end
+			var Outline:GlowFilter = new GlowFilter(0x000000, a, 5, 5, 10);
+			lblName.filters = [Outline];
+			
+			if (Badge != 0)
+			{
+				badge.gotoAndStop(Badge);
+				badge.x = -(lblName.width / 2) - 4;
+				badge.visible = true;
+			}
+		}
 
 		if(Color == 'rainbow')
 			addEventListener(Event.ENTER_FRAME, ColorUpdate);
 
-		lblName.autoSize = TextFieldAutoSize.CENTER;
-		lblShade.autoSize = TextFieldAutoSize.CENTER;
-		lblName.text = U.name;
-		lblShade.text = U.name;
-		
 		bubble.visible = false;
 		
-		Scale = scale / 100;
-		scaleX = Scale;
-		scaleY = Scale;
-		
-		if (Badge != 0)
-		{
-			badge.gotoAndStop(Badge);
-			badge.x = -(lblName.width / 2) - 4;
-			badge.visible = true;
-		}
+		scaleX = scaleY = Scale = scale / 100;
 
 		SetWear(Wear.toObject());
 		SetDirection(Dir);
@@ -98,8 +117,6 @@ class Avatar extends mm.entities.AvatarSwf {
 		var D:ISFSObject = new SFSObject();
 		D.putUtfString('name', lblName.text);
 		Main.SFS.send(new ExtensionRequest('profile', D));
-		
-		trace('Профиль', lblName.text);
 	}
 
 	public function SetWear(W:Dynamic):Void
@@ -121,7 +138,7 @@ class Avatar extends mm.entities.AvatarSwf {
 			if(I != 0) {
 				function WearLoaded(E:Event):Void
 				{
-					Reflect.setField(WearItems, Std.string(i), new WearHolder(cast(E.target, LoaderInfo).content));
+					Reflect.setField(WearItems, Std.string(i), new Wear(cast(E.target, LoaderInfo).content));
 					SetDirection();
 				}
 

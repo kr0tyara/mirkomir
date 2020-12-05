@@ -356,7 +356,7 @@ class Location extends MovieClip
 	{
 		if (U.containsVariable('pos_x') && U.containsVariable('pos_y'))
         {
-            var A:mm.entities.Avatar = new mm.entities.Avatar(U, R.getVariable('scale').getIntValue());
+            var A:Avatar = new Avatar(U, R.getVariable('scale').getIntValue());
             
             A.x = U.getVariable('pos_x').getIntValue();
             A.y = U.getVariable('pos_y').getIntValue();

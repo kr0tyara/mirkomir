@@ -43,6 +43,16 @@ class SWFLoader {
 
 		Completed(E);
 	}
+	
+	public function Destroy():Void
+	{
+		L.unload();
+		L.contentLoaderInfo.removeEventListener(Event.COMPLETE, Complete);
+		L.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, Error);
+		if (HProg)
+			L.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, Progress);
+	}
+	
 	public function Error (E:IOErrorEvent):Void
 	{
 		trace('Load error!', E);

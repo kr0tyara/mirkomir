@@ -53,7 +53,7 @@ class Main extends MovieClip
 	public static var LS:LoadingScreen;
 	public static var DLS:DataLoadingScreen;
 
-	private static var Rooms:Array<String> = ['forest', 'square', 'club_square', 'beach'];
+	private static var Rooms:Array<String> = ['forest', 'club_square', 'beach', 'square'];
 	private var R:Int = Math.round(Math.random() * 3);
 
 	public function new():Void
@@ -131,7 +131,9 @@ class Main extends MovieClip
 		
         if (E.cmd == 'profile_info')
         {
-			trace(E.params);
+			//TEMP
+			var P:ProfileScreen = new ProfileScreen(E.params);
+			addChild(P);
         }
 	}
 	
@@ -153,7 +155,7 @@ class Main extends MovieClip
 		#end
 		
         var R:Room = E.room;
-   		trace('Joined room: ' + R.name);
+   		//trace('Joined room: ' + R.name);
 
         GMScreen.balancePanel.lblRegular.text = Std.string(SFS.mySelf.getVariable('balance_regular').getIntValue());
         GMScreen.balancePanel.lblDonate.text  = Std.string(SFS.mySelf.getVariable('balance_donate').getIntValue());
@@ -194,8 +196,6 @@ class Main extends MovieClip
 
     private function InitGame():Void
     {
-		trace(SFS.mySelf.privilegeId);
-    	trace('Init', SO.data);
         DZAllowed = (SFS.mySelf.privilegeId >= 2 && SO.data.ModMZ);
 
         GMScreen = new GameScreen();
